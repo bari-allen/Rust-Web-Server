@@ -1,17 +1,44 @@
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use serde::{Serialize, Deserialize};
 mod file_reader;
-use file_reader::*;
+use file_reader::{create_new_user, file_exists, create_file};
 
-fn main() {
-    if !file_exists() {
-	let successful_creation = create_file();
-	if successful_creation.is_err() {
-	    println!("The file could not be created");
-	}
-    }
+#[derive(Serialize, Deserialize)]
+struct User {
+    username: String,
+    password: String
+}
 
-    let user_creation = create_new_user("Karl Haidinyak".to_string(), "Cannot Read".to_string());
-    if user_creation.is_err() {
-	println!("The user couldn't be created");
+#[actix_web::post("/users")]
+async fn create_user(user_data: web::Json<User>,  ) -> impl Responder {
+    let username = user_data.username.clone();
+    let password = user_data.password.clone();
+
+    if !file_exists(){
+	let _ = create_file();
     }
-	
+    let _ = create_new_user(username, password);
+
+    return HttpResponse::Created().json(User {
+	username: user_data.username.clone(),
+	password: user_data.password.clone()
+    });
+}
+
+#[actix_web::get("/greet")]
+async fn greet() -> impl Responder {
+   return format!("Hello World!");
+}
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| {
+		    App::new()
+		    .service(greet)
+		    .service(create_user)
+    })
+	.bind(("127.0.0.1", 8080))?
+	.workers(2)
+	.run()
+	.await
 }

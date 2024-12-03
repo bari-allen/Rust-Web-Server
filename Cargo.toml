@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies]
 sha2 = "0.9"
 base64 = "0.13"
+actix-web = "4"
+serde = {version = "1.0.197", features = ["derive"]}
