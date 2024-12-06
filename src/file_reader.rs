@@ -11,6 +11,25 @@ pub fn file_exists() -> bool {
     return path.exists();
 }
 
+///Checks whether the user's inputted username and password match
+///a corresponding username and password in the database
+pub fn valid_user_input(username: String, password: String) -> Result<(String, String), Error> {
+    let mut hasher = Sha256::new();
+    hasher.update(password.as_bytes());
+    let result = hasher.finalize();
+    let password_str = base64::encode(result);
+
+    let users: Vec<(String, String)> = read_users()?;
+
+    for (database_username, database_password) in users {
+	if username == database_username && password_str == database_password {
+	    return Ok((username, password_str));
+	}
+    }
+
+    return Err(Error::new(ErrorKind::InvalidData, "Username or Password is invalid"));
+}
+
 
 ///Creates a new file called user.csv
 ///in the current directory and initializes the
