@@ -1,12 +1,19 @@
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use serde::{Serialize, Deserialize};
+use actix_files;
 mod file_reader;
-use file_reader::{create_new_user, file_exists, create_file};
+use file_reader::{create_new_user, file_exists, create_file, valid_user_input};
+
 
 #[derive(Serialize, Deserialize)]
 struct User {
     username: String,
     password: String
+}
+
+#[derive(Serialize)]
+struct Response {
+    message: String,
 }
 
 #[actix_web::post("/users")]
@@ -25,20 +32,36 @@ async fn create_user(user_data: web::Json<User>,  ) -> impl Responder {
     });
 }
 
-#[actix_web::get("/greet")]
-async fn greet() -> impl Responder {
-   return format!("Hello World!");
+#[actix_web::post("/login")]
+async fn login(data: web::Json<User>) -> impl Responder {
+    let username: String = data.username.clone();
+    let password: String = data.password.clone();
+    let is_valid = valid_user_input(username.clone(), password);
+
+    if is_valid.is_ok() {
+	let response = Response {
+	    message: format!("Login Successful! Welcome {}!", username),
+	};
+	 return HttpResponse::Ok().json(response);
+    } else {
+	let response = Response {
+	    message: format!("Error: Could not login!"),
+	};
+
+	return HttpResponse::Unauthorized().json(response);
+    }
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    println!("Directory {:?}", std::env::current_dir()?);
     HttpServer::new(|| {
 		    App::new()
-		    .service(greet)
-		    .service(create_user)
+	    .service(login)
+	    .service(actix_files::Files::new("/", "../static").index_file("index.html"))
+		
     })
 	.bind(("127.0.0.1", 8080))?
-	.workers(2)
 	.run()
 	.await
 }

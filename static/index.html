@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="el">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="Karl Haidinyak">
+        <title>User Login</title>
+        <script>
+            async function login() {
+                const username = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+
+                try {
+                    const response = await fetch('http://127.0.0.1:8080/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username: username, password: password }),
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        document.getElementById("login-successful").textContent = data.message;
+                    } else {
+                        document.getElementById("login-successful").textContent =
+                            `Error: ${response.status} ${response.statusText}`;
+                    }
+                } catch (error) {
+                    document.getElementById("login-successful").textContent = 
+                        "Error: Could not contact the server!";
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                const password = document.getElementById("password");
+                password.addEventListener("keypress", function(event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        document.getElementById("send").click();
+                    }
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <h1>Please Enter Your Username and Password</h1>
+        <input type="text" id="username" placeholder="Enter your username" />
+        <input type="password" id="password" placeholder="Enter your password" />
+        <button id="send" onclick="login()">Login</button>
+        <p id="login-successful"></p>
+    </body>
+</html>

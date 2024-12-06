@@ -22,6 +22,12 @@ pub fn valid_user_input(username: String, password: String) -> Result<(String, S
     let users: Vec<(String, String)> = read_users()?;
 
     for (database_username, database_password) in users {
+	let database_username = database_username.trim();
+	let database_password = database_password.trim();
+
+	println!("Database PW: {} Database User: {}", database_password, database_username);
+	println!("User: {}, PW: {}", username, password);
+	
 	if username == database_username && password_str == database_password {
 	    return Ok((username, password_str));
 	}
@@ -83,7 +89,7 @@ pub fn read_users() -> std::io::Result<Vec<(String, String)>> {
 	}
 	
 	let username: String = collection[0].to_string();
-	let password: String = collection[0].to_string();
+	let password: String = collection[1].to_string();
 
 	users.push((username, password));
     }
