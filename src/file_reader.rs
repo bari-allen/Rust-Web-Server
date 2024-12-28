@@ -75,7 +75,7 @@ pub fn create_new_user(username: String, password: String) -> Result<(), Error> 
 
 pub fn read_users() -> std::io::Result<Vec<(String, String)>> {
     let mut users: Vec<(String, String)> = Vec::new();
-    let users_file = File::open("users.csv")?;
+    let users_file = File::open("src/users.csv")?;
     let buf_reader = BufReader::new(users_file);
     
 

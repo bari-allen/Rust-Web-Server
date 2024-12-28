@@ -39,17 +39,19 @@ async fn login(data: web::Json<User>) -> impl Responder {
     let password: String = data.password.clone();
     let is_valid = valid_user_input(username.clone(), password);
 
-    if is_valid.is_ok() {
-	let response = Response {
-	    message: format!("Login Successful! Welcome {}!", username),
-	};
-	 return HttpResponse::Ok().json(response);
-    } else {
-	let response = Response {
-	    message: format!("Error: Could not login!"),
-	};
-
-	return HttpResponse::Unauthorized().json(response);
+    match is_valid {
+        Ok((username, _password)) => {
+            let response = Response {
+                message: format!("Login Successful! Welcome {}", username),
+            };
+            return HttpResponse::Ok().json(response);
+        }
+        Err(_error) => {
+            let response = Response {
+                message: format!("Login Failed: Invalid Username or Password!"),
+            };
+            return HttpResponse::Ok().json(response);
+        }
     }
 }
 

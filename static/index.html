@@ -23,8 +23,8 @@
                         const data = await response.json();
                         document.getElementById("login-successful").textContent = data.message;
                     } else {
-                        document.getElementById("login-successful").textContent =
-                            `Error: ${response.status} ${response.statusText}`;
+                        const data = await response.json();
+                        document.getElementById("login-successful").textContent = data.message;
                     }
                 } catch (error) {
                     document.getElementById("login-successful").textContent = 
