@@ -1,1 +1,6 @@
-/target
+target
+.vscode
+src/.vscode
+src/users.csv
+gitignore
+

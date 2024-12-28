@@ -1,6 +1,7 @@
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use serde::{Serialize, Deserialize};
 use actix_files;
+use std::path::Path;
 mod file_reader;
 use file_reader::{create_new_user, file_exists, create_file, valid_user_input};
 
@@ -52,13 +53,20 @@ async fn login(data: web::Json<User>) -> impl Responder {
     }
 }
 
+#[actix_web::get("/")]
+async fn index() -> impl Responder {
+    println!("Index File Served...");
+    return actix_files::NamedFile::open(Path::new("static/index.html")).unwrap();
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("Directory {:?}", std::env::current_dir()?);
+    println!("The Server Is Starting at {:?}", std::env::current_dir().unwrap());
+
     HttpServer::new(|| {
 		    App::new()
 	    .service(login)
-	    .service(actix_files::Files::new("/", "../static").index_file("index.html"))
+	    .service(index)
 		
     })
 	.bind(("127.0.0.1", 8080))?

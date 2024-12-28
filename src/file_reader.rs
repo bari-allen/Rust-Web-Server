@@ -94,5 +94,5 @@ pub fn read_users() -> std::io::Result<Vec<(String, String)>> {
 	users.push((username, password));
     }
 
-    return Ok(users); 
+    return Ok(users);
 }
