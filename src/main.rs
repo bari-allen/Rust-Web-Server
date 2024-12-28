@@ -5,18 +5,20 @@ use std::path::Path;
 mod file_reader;
 use file_reader::{create_new_user, file_exists, create_file, valid_user_input};
 
-
+///The struct for the data the user inputs
 #[derive(Serialize, Deserialize)]
 struct User {
     username: String,
     password: String
 }
 
+///The struct for our response 
 #[derive(Serialize)]
 struct Response {
     message: String,
 }
 
+///Creates a new user given the inputted `Username` and `Password`
 #[actix_web::post("/users")]
 async fn create_user(user_data: web::Json<User>,  ) -> impl Responder {
     let username = user_data.username.clone();
@@ -33,6 +35,9 @@ async fn create_user(user_data: web::Json<User>,  ) -> impl Responder {
     });
 }
 
+///Logs the user in given the correct inputted `Username` and `Password`
+///Calls to the valid_user_input function from file_reader to ensure
+///the correct usernames and passwords are inputted
 #[actix_web::post("/login")]
 async fn login(data: web::Json<User>) -> impl Responder {
     let username: String = data.username.clone();
