@@ -3,6 +3,7 @@ use serde::{Serialize, Deserialize};
 use actix_files;
 use std::path::Path;
 mod file_reader;
+mod tests;
 use file_reader::{create_new_user, file_exists, create_file, valid_user_input};
 
 ///The struct for the data the user inputs
@@ -45,7 +46,7 @@ async fn login(data: web::Json<User>) -> impl Responder {
     let is_valid = valid_user_input(username.clone(), password);
 
     match is_valid {
-        Ok((username, _password)) => {
+        Ok(_) => {
             let response = Response {
                 message: format!("Login Successful! Welcome {}", username),
             };
