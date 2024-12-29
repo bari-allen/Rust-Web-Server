@@ -1,6 +1,6 @@
 target
 .vscode
 src/.vscode
-src/users.csv
+./src/users.csv
 gitignore
 
