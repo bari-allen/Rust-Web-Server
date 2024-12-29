@@ -12,7 +12,7 @@ struct User {
     password: String
 }
 
-///The struct for our response 
+///The struct for our response
 #[derive(Serialize)]
 struct Response {
     message: String,
@@ -68,11 +68,6 @@ async fn index() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-<<<<<<< HEAD
-=======
-    println!("The Server Is Starting at {:?}", std::env::current_dir().unwrap());
-
->>>>>>> dc75984a81922d9efa6ce1f8fc6a3777fa805d71
     HttpServer::new(|| {
 		    App::new()
 	    .service(login)
