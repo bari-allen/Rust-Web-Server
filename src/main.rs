@@ -4,7 +4,7 @@ use actix_files;
 use std::path::Path;
 mod file_reader;
 mod tests;
-use file_reader::{create_new_user, file_exists, create_file, valid_user_input};
+use file_reader::*;
 
 ///The struct for the data the user inputs
 #[derive(Serialize, Deserialize)]
@@ -17,23 +17,6 @@ struct User {
 #[derive(Serialize)]
 struct Response {
     message: String,
-}
-
-///Creates a new user given the inputted `Username` and `Password`
-#[actix_web::post("/users")]
-async fn create_user(user_data: web::Json<User>,  ) -> impl Responder {
-    let username = user_data.username.clone();
-    let password = user_data.password.clone();
-
-    if !file_exists(){
-	let _ = create_file();
-    }
-    let _ = create_new_user(username, password);
-
-    return HttpResponse::Created().json(User {
-	username: user_data.username.clone(),
-	password: user_data.password.clone()
-    });
 }
 
 ///Logs the user in given the correct inputted `Username` and `Password`

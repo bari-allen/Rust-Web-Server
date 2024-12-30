@@ -5,15 +5,27 @@ mod tests {
     use std::path::Path;
 
     #[test]
-    fn create_file_tests() {
-        let result: Result<bool, Error> = create_file();
-        let path = Path::new("./src/users.csv");
+    fn create_new_user_tests() {
+        let username = String::from("Karl Haidinyak");
+        let result = contains_username(&username);
 
-        if let Err(err) = result {
-            assert_eq!(err.kind(), ErrorKind::AlreadyExists);
-            assert!(path.exists());
-        } else {
-            panic!("Expected an error, but got Ok!");
+        match result {
+            Ok(is_contained) => {
+                assert!(is_contained);
+            } Err(_) => {
+                panic!();
+            }
+        }
+
+        let username = String::from("karl haidinyak");
+        let result = contains_username(&username);
+
+        match result {
+            Ok(is_contained) => {
+                assert!(!is_contained);
+            } Err(_) => {
+                panic!();
+            }
         }
     }
 }
