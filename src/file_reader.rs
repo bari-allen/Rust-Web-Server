@@ -13,7 +13,7 @@ fn file_exists() -> bool {
 
 ///Checks whether the user's inputted username and password match
 ///a corresponding username and password in the database
-pub fn valid_user_input(username: String, password: String) -> Result<bool, Error> {
+pub fn valid_user_input(username: &String, password: &String) -> Result<bool, Error> {
     let mut hasher = Sha256::new();
     hasher.update(password.as_bytes());
     let result = hasher.finalize();
@@ -22,7 +22,7 @@ pub fn valid_user_input(username: String, password: String) -> Result<bool, Erro
     let users: Vec<(String, String)> = read_users()?;
 
     let is_valid:bool = users.into_iter()
-        .any(|(database_username, database_password)| username == database_username && password_str == database_password);
+        .any(|(database_username, database_password)| *username == database_username && password_str == database_password.trim());
 
     return if is_valid {Ok(true)} else {Err(Error::new(ErrorKind::InvalidData, "Username or Password is invalid"))};
 }
@@ -59,7 +59,7 @@ pub fn contains_username(username: &String) -> Result<bool, Error> {
 ///Writes a new user to the user.csv file, if it exists.
 ///This function hashes the `Password` its given to add
 ///an extra layer of safety
-pub fn create_new_user(username: String, password: String) -> Result<(), Error> {
+pub fn create_new_user(username: &String, password: &String) -> Result<(), Error> {
     if contains_username(&username)? {
         return Err(Error::new(ErrorKind::AlreadyExists,
             "Username already exists!"));

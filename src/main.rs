@@ -26,7 +26,7 @@ struct Response {
 async fn login(data: web::Json<User>) -> impl Responder {
     let username: String = data.username.clone();
     let password: String = data.password.clone();
-    let is_valid = valid_user_input(username.clone(), password);
+    let is_valid = valid_user_input(&username, &password);
 
     match is_valid {
         Ok(_) => {

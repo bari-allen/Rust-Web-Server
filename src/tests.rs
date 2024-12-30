@@ -28,4 +28,37 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn valid_user_input_tests() {
+        let new_username = String::from("Karl");
+        let new_password = String::from("haidinyak");
+
+        match create_new_user(&new_username, &new_password) {
+            _ => {
+                let result = valid_user_input(&new_username, &new_password);
+
+                match result {
+                    Ok(is_valid) => {
+                        assert!(is_valid);
+                    } Err(_) => {
+                        panic!();
+                    }
+                }
+            }
+        }
+
+        let fake_username = String::from("fake");
+        let fake_password = String::from("fake");
+
+        let result = valid_user_input(&fake_username, &fake_password);
+        match result {
+            Ok(_) => {
+                panic!();
+            } Err(err) => {
+                assert_eq!(ErrorKind::InvalidData, err.kind());
+            }
+        }
+
+    }
 }
