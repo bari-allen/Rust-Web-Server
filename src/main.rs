@@ -45,8 +45,11 @@ async fn login(data: web::Json<User>) -> impl Responder {
     }
 }
 
-async fn serve_image(path: web::Path<String>) -> Result<impl Responder, actix_web::Error> {
-    let path = path.into_inner();
+/// Takes the file_path which the user inputted in the webpage, matches it
+/// agaisnt the regex requiring it to have the extensions .png or .jpg, and
+/// returns either the file path or an error
+async fn serve_image(file_path: web::Path<String>) -> Result<impl Responder, actix_web::Error> {
+    let path = file_path.into_inner();
 
     let regex = Regex::new(r"^[a-zA-Z0-9_\-\s]+\.(png|jpg)$").unwrap();
     if !regex.is_match(&path) {
