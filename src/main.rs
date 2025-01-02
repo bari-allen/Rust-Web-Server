@@ -71,13 +71,13 @@ async fn index() -> impl Responder {
 #[actix_web::get("/get_images")]
 async fn get_images() -> impl Responder {
     let paths = fs::read_dir("./images").unwrap();
-    let mut file_names: Vec<std::ffi::OsString> = Vec::new();
+    let mut file_names: Vec<String> = Vec::new();
 
     for path in paths {
         match path {
             Ok(path) => {
                 let file_name = path.file_name();
-                file_names.push(file_name);
+                file_names.push(file_name.to_string_lossy().into_owned());
             } Err(err) => {
                 eprintln!("Reason for Failure: {}", err.to_string());
                 continue;
@@ -96,6 +96,7 @@ async fn main() -> std::io::Result<()> {
 	    .service(index)
         .route("/images/{file_name}", actix_web::web::get().to(serve_image))
         .service(get_images)
+        .service(actix_files::Files::new("/photos", "./static").index_file("photos.html"))
     })
 	.bind(("127.0.0.1", 8080))?
 	.run()

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+    <html lang="el">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" contents="width=device-width, initial-scale=1.0">
+            <meta name="author" content="Karl Haidinyak">
+            <title>My Photographs</title>
+            <style>
+                img {
+                    width: 300px;
+                    height: auto;
+                }
+            </style>
+            <script>
+                async function getPhotos() {
+                    const container = document.getElementById('image-container');
+
+                    try {
+                        const response = await fetch('http://127.0.0.1:8080/get_images');
+                        if (!response.ok) {
+                            error_text = document.createElement('p');
+                            const status = response.status;
+                            error_text.textContent = "HTTP ERROR: " + status;
+                            container.appendChild(error_text);
+                        } else {
+                            const photo_paths = await response.json();
+                            displayPhotos(photo_paths);
+                        }
+                    } catch (error) {
+                        error_text = document.createElement('p');
+                        error_text.textContent = "Could Not Contact Server!";
+                        container.appendChild(error_text);
+                    }
+                }
+
+                function displayPhotos(photo_paths) {
+                    const container = document.getElementById('image-container');
+                    container.innerHTML = '';
+
+                    photo_paths.forEach(photo => {
+                        const photo_path = "http://127.0.0.1:8080/images/" + photo;
+                        img = document.createElement('img');
+                        img.src = photo_path;
+                        img.width = 
+
+                        container.appendChild(img);
+                    })
+                }
+            </script>
+        </head>
+        <body>
+            <h1>Photography Portfolio</h1>
+            <div id="image-container"></div>
+            <script>getPhotos()</script>
+        </body>
+    </html>
