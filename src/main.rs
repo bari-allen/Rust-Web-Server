@@ -5,6 +5,7 @@ use std::path::Path;
 mod file_reader;
 mod tests;
 use file_reader::*;
+use regex::Regex;
 
 ///The struct for the data the user inputs
 #[derive(Serialize, Deserialize)]
@@ -44,6 +45,19 @@ async fn login(data: web::Json<User>) -> impl Responder {
     }
 }
 
+async fn serve_image(path: web::Path<String>) -> Result<impl Responder, actix_web::Error> {
+    let path = path.into_inner();
+
+    let regex = Regex::new(r"^[a-zA-Z0-9_\-\s]+\.(png|jpg)$").unwrap();
+    if !regex.is_match(&path) {
+        return Err(actix_web::error::ErrorBadRequest("Invalid File Name!"));
+    }
+
+    let file_path = format!("./images/{}", path);
+
+    return Ok(actix_files::NamedFile::open(file_path)?);
+}
+
 #[actix_web::get("/")]
 async fn index() -> impl Responder {
     println!("Index File Served...");
@@ -56,7 +70,7 @@ async fn main() -> std::io::Result<()> {
 		    App::new()
 	    .service(login)
 	    .service(index)
-		
+        .route("/images/{file_name}", actix_web::web::get().to(serve_image))
     })
 	.bind(("127.0.0.1", 8080))?
 	.run()

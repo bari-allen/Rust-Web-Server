@@ -1401,6 +1401,7 @@ dependencies = [
  "actix-files",
  "actix-web",
  "base64 0.13.1",
+ "regex",
  "serde",
  "sha2",
 ]
