@@ -1,4 +1,4 @@
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{cookie::time::Date, web, App, HttpResponse, HttpServer, Responder};
 use serde::{Serialize, Deserialize};
 use actix_files;
 use std::path::Path;
@@ -6,6 +6,7 @@ mod file_reader;
 mod tests;
 use file_reader::*;
 use regex::Regex;
+use std::fs;
 
 ///The struct for the data the user inputs
 #[derive(Serialize, Deserialize)]
@@ -67,6 +68,26 @@ async fn index() -> impl Responder {
     return actix_files::NamedFile::open(Path::new("static/index.html")).unwrap();
 }
 
+#[actix_web::get("/get_images")]
+async fn get_images() -> impl Responder {
+    let paths = fs::read_dir("./images").unwrap();
+    let mut file_names: Vec<std::ffi::OsString> = Vec::new();
+
+    for path in paths {
+        match path {
+            Ok(path) => {
+                let file_name = path.file_name();
+                file_names.push(file_name);
+            } Err(err) => {
+                eprintln!("Reason for Failure: {}", err.to_string());
+                continue;
+            }
+        }
+    }
+
+    return HttpResponse::Ok().json(file_names);
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
@@ -74,6 +95,7 @@ async fn main() -> std::io::Result<()> {
 	    .service(login)
 	    .service(index)
         .route("/images/{file_name}", actix_web::web::get().to(serve_image))
+        .service(get_images)
     })
 	.bind(("127.0.0.1", 8080))?
 	.run()
