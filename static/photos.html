@@ -10,7 +10,7 @@
                     display: inline-block;
                     border: 1px solid rgb(190, 179, 179);
                     height: 352px;
-                    margin: 10px;
+                    margin-top: 10px;
                 }
                 .image-container:hover {
                     border: 1px solid rgb(135, 129, 129);
@@ -20,10 +20,18 @@
                     width: auto;
                 }
                 #gallery{
-                    position: fixed;
-                    margin-left: 40px;
-                    margin-right: 40px;
-                    margin-top: 50px;
+                    display: flex;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    flex-direction: row;
+                    margin: 100px;
+                    position: relative;
+                }
+                html, body{
+                    margin: 0;
+                    padding: 0;
+                    height: auto;
+                    overflow-y: auto;
                 }
                 #page-title{
                     text-align: center;
