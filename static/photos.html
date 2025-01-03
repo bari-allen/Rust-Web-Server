@@ -6,9 +6,29 @@
             <meta name="author" content="Karl Haidinyak">
             <title>My Photographs</title>
             <style>
-                img {
-                    width: 300px;
-                    height: auto;
+                .image-container {
+                    display: inline-block;
+                    border: 1px solid rgb(190, 179, 179);
+                    height: 352px;
+                    margin: 10px;
+                }
+                .image-container:hover {
+                    border: 1px solid rgb(135, 129, 129);
+                }
+                .image-container img{
+                    height: 100%;
+                    width: auto;
+                }
+                #gallery{
+                    position: fixed;
+                    margin-left: 40px;
+                    margin-right: 40px;
+                    margin-top: 50px;
+                }
+                #page-title{
+                    text-align: center;
+                    font-family: Georgia, 'Times New Roman', Times;
+                    font-size: 50px;
                 }
             </style>
             <script>
@@ -34,23 +54,32 @@
                 }
 
                 function displayPhotos(photo_paths) {
-                    const container = document.getElementById('image-container');
+                    const container = document.getElementById('gallery');
                     container.innerHTML = '';
 
                     photo_paths.forEach(photo => {
                         const photo_path = "http://127.0.0.1:8080/images/" + photo;
-                        img = document.createElement('img');
-                        img.src = photo_path;
-                        img.width = 
 
-                        container.appendChild(img);
+                        const div = document.createElement('div');
+                        div.className = 'image-container';
+
+                        const anchor = document.createElement('a');
+                        anchor.target = '_self';
+                        anchor.href = photo_path;
+
+                        const img = document.createElement('img');
+                        img.src = photo_path;
+
+                        anchor.appendChild(img);
+                        div.appendChild(anchor);
+                        container.appendChild(div);
                     })
                 }
             </script>
         </head>
         <body>
-            <h1>Photography Portfolio</h1>
-            <div id="image-container"></div>
+            <h1 id="page-title">Gallery</h1>
+            <div id="gallery"></div>
             <script>getPhotos()</script>
         </body>
     </html>
