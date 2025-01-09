@@ -1,8 +1,9 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::collections::HashMap;
 
 struct TrieNode {
-    children: Vec<Option<Rc<RefCell<TrieNode>>>>,
+    children: HashMap<char, Rc<RefCell<TrieNode>>>,
     is_end_of_word: bool,
 }
 
@@ -13,7 +14,7 @@ struct Trie {
 impl TrieNode {
     fn new() -> TrieNode {
         return TrieNode {
-            children: vec!(None; 53),
+            children: HashMap::new(),
             is_end_of_word: false,
         };
     }
@@ -28,19 +29,10 @@ impl Trie {
         let mut node: Rc<RefCell<TrieNode>>= Rc::clone(&self.root);
 
         for character in char_array {
-            let index = match character {
-                'a'..= 'z' => {(character as usize) - ('a' as usize) + 26},
-                'A' ..= 'Z' => {(character as usize) - ('A' as usize)},
-                ' ' => {52}
-                _ => {continue},
-            };
-
             let mut node_ref = node.borrow_mut();
-            if node_ref.children[index].is_none() {
-                node_ref.children[index] = Some(Rc::new(RefCell::new(TrieNode::new())));
-            }
 
-            node = Rc::clone(node_ref.children[index].as_ref().unwrap());
+            node_ref.children.entry(character)
+            .or_insert_with(|| Rc::new(RefCell::new(TrieNode::new())));
         }
         
         node.borrow_mut().is_end_of_word = true;
