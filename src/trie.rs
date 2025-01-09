@@ -37,7 +37,7 @@ impl Trie {
         
         node.borrow_mut().is_end_of_word = true;
     }
-    
+
     pub fn contains(&self, to_find: &str) -> bool{
         let char_array = to_find.chars();
         let mut curr_node: Rc<RefCell<TrieNode>> = Rc::clone(&self.root);
@@ -55,5 +55,37 @@ impl Trie {
         }
 
         return curr_node.borrow().is_end_of_word;
+    }
+
+    pub fn suggest(&self, prefix: &str) -> Vec<String> {
+        let mut curr_node: Rc<RefCell<TrieNode>> = Rc::clone(&self.root);
+        let list: Vec<String> = Vec::new();
+        let buffer: String = String::new();
+
+        for character in prefix.chars() {
+            let mut node_ref = curr_node.borrow();
+            if let Some(next_node) = node_ref.children.get(&character) {
+                curr_node = Rc::clone(next_node);
+                buffer.push(character);
+            } else {
+                return list;
+            }
+        }
+
+        self.suggest_helper(curr_node, &mut buffer, &mut list);
+        return list;
+    }
+
+    fn suggest_helper(&self, curr_node: Rc<RefCell<TrieNode>>, buffer: &mut String, list: &mut Vec<String>) {
+        let curr_node = curr_node.borrow();
+        if curr_node.is_end_of_word {
+            list.push(buffer.clone())
+        }
+
+        for (&character, child_node) in &curr_node.children {
+            buffer.push(character);
+            self.suggest_helper(Rc::clone(child_node), buffer, list);
+            buffer.pop();
+        }
     }
 }
