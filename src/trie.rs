@@ -31,10 +31,29 @@ impl Trie {
         for character in char_array {
             let mut node_ref = node.borrow_mut();
 
-            node_ref.children.entry(character)
+            node = node_ref.children.entry(character)
             .or_insert_with(|| Rc::new(RefCell::new(TrieNode::new())));
         }
         
         node.borrow_mut().is_end_of_word = true;
+    }
+    
+    pub fn contains(&self, to_find: &str) -> bool{
+        let char_array = to_find.chars();
+        let mut curr_node: Rc<RefCell<TrieNode>> = Rc::clone(&self.root);
+
+        for character in char_array {
+            let node_ref = curr_node.borrow();
+            let value = node_ref.children.get(&character);
+
+            match value {
+                None => return false,
+                Some(value) => {
+                    curr_node = Rc::clone(value);
+                }
+            }
+        }
+
+        return curr_node.borrow().is_end_of_word;
     }
 }
