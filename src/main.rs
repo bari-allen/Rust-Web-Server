@@ -57,9 +57,12 @@ async fn serve_image(file_path: web::Path<String>) -> Result<impl Responder, act
         return Err(actix_web::error::ErrorBadRequest("Invalid File Name!"));
     }
 
-    let file_path = format!("./images/{}", path);
+    let file_path = Path::new("./images").join(path);
 
-    return Ok(actix_files::NamedFile::open(file_path)?);
+    let named_file = actix_files::NamedFile::open(file_path)
+        .map_err(|_| actix_web::error::ErrorNotFound("File Not Found"))?;
+
+    return Ok(named_file);
 }
 
 #[actix_web::get("/")]
