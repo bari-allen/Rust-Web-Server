@@ -8,7 +8,7 @@ struct TrieNode {
 }
 
 struct Trie {
-    root: TrieNode,
+    root: Rc<RefCell<TrieNode>>,
 }
 
 impl TrieNode {
@@ -22,17 +22,22 @@ impl TrieNode {
 
 impl Trie {
     pub fn new() -> Trie {
-        return Trie{root: TrieNode::new()};
+        return Trie{root: Rc::new(RefCell::new(TrieNode::new()))};
     }
     pub fn insert(&mut self, new_string: &str) {
         let char_array = new_string.chars();
         let mut node: Rc<RefCell<TrieNode>>= Rc::clone(&self.root);
 
         for character in char_array {
-            let mut node_ref = node.borrow_mut();
+            let next_node = {
+                let mut node_ref = node.borrow_mut();
 
-            node = node_ref.children.entry(character)
-            .or_insert_with(|| Rc::new(RefCell::new(TrieNode::new())));
+                node_ref.children.entry(character)
+                .or_insert_with(||Rc::new(RefCell::new(TrieNode::new())))
+                .clone()
+            };
+
+            node = next_node;
         }
         
         node.borrow_mut().is_end_of_word = true;
@@ -43,13 +48,15 @@ impl Trie {
         let mut curr_node: Rc<RefCell<TrieNode>> = Rc::clone(&self.root);
 
         for character in char_array {
-            let node_ref = curr_node.borrow();
-            let value = node_ref.children.get(&character);
+            let value = {
+                let node_ref = curr_node.borrow();
+                node_ref.children.get(&character).cloned()
+            };
 
             match value {
                 None => return false,
                 Some(value) => {
-                    curr_node = Rc::clone(value);
+                    curr_node = Rc::clone(&value);
                 }
             }
         }
@@ -59,13 +66,17 @@ impl Trie {
 
     pub fn suggest(&self, prefix: &str) -> Vec<String> {
         let mut curr_node: Rc<RefCell<TrieNode>> = Rc::clone(&self.root);
-        let list: Vec<String> = Vec::new();
-        let buffer: String = String::new();
+        let mut list: Vec<String> = Vec::new();
+        let mut buffer: String = String::new();
 
         for character in prefix.chars() {
-            let mut node_ref = curr_node.borrow();
-            if let Some(next_node) = node_ref.children.get(&character) {
-                curr_node = Rc::clone(next_node);
+            let next_node = {
+                let node_ref = curr_node.borrow();
+                node_ref.children.get(&character).cloned()
+            };
+
+            if let Some(next_node) = next_node {
+                curr_node = next_node;
                 buffer.push(character);
             } else {
                 return list;

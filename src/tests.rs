@@ -61,4 +61,9 @@ mod tests {
         }
 
     }
+
+    #[test]
+    fn trie_insert() {
+        
+    }
 }
