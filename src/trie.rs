@@ -7,7 +7,7 @@ struct TrieNode {
     is_end_of_word: bool,
 }
 
-struct Trie {
+pub struct Trie {
     root: Rc<RefCell<TrieNode>>,
 }
 
@@ -24,6 +24,7 @@ impl Trie {
     pub fn new() -> Trie {
         return Trie{root: Rc::new(RefCell::new(TrieNode::new()))};
     }
+    
     pub fn insert(&mut self, new_string: &str) {
         let char_array = new_string.chars();
         let mut node: Rc<RefCell<TrieNode>>= Rc::clone(&self.root);
