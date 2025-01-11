@@ -11,14 +11,18 @@
                     border: 1px solid rgb(136, 128, 128);
                     width: auto;
                     height: 350px;
-                    margin-top: 10px;
-                    margin-left: 3px;
-                    margin-right: 3px;
+                    margin-top: 5px;
+                    margin-left: 2px;
+                    margin-right: 2px;
+                    margin-bottom: 5px;
                 }
                 .image-container:hover {
                     border: 1px solid rgb(0, 0, 0);
                     height: 354px;
-                    margin-top: 8px;
+                    margin-top: 3px;
+                    margin-left: 0px;
+                    margin-right: 0px;
+                    margin-bottom: 3px;
                     width: auto;
                 }
                 .image-container img{
@@ -34,8 +38,6 @@
                     position: relative;
                 }
                 html, body{
-                    margin: 0;
-                    padding: 0;
                     height: auto;
                     overflow-y: auto;
                     background: #d2d8d9
@@ -46,8 +48,49 @@
                     font-size: 45px;
                     color: hsl(192, 13%, 16%);
                 }
+                .search-container{
+                    display: flex;
+                    justify-content: center;
+                    margin: auto;
+                    width: 100%;
+                }
+
+                .search-bar{
+                    width: 300px;
+                    border-radius: 5px;
+                    outline: none;
+                    font-size: 16px;
+                    text-align: center;
+                }
+                .search-bar:focus{
+                    border-color:hsl(197, 3%, 49%);
+                }
+                .suggestions-list{
+                    max-height: 200px;
+                    overflow-y: auto;
+                    border-radius: 5px;
+                    border-top-left-radius: 0px;
+                    border-top-right-radius: 0px;
+                    margin: 0;
+                    padding: 0;
+                    background-color: #fff;
+                    list-style: none;
+                    display: none; /* Initially hidden */
+                    z-index: 1000;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    width: 303px;
+                }
+                .suggestions-list li{
+                    cursor: pointer;
+                    padding: 10px;
+                    text-align: center;
+                    font-size: 16px;
+                }
+
             </style>
+            <script src="http://127.0.0.1:8080/script/trie-script.js"></script>
             <script>
+                let trie = new Trie();
                 async function getPhotos() {
                     const container = document.getElementById('image-container');
 
@@ -74,6 +117,7 @@
                     container.innerHTML = '';
 
                     photo_paths.forEach(photo => {
+                        trie.insert(photo);
                         const photo_path = "http://127.0.0.1:8080/images/" + photo;
 
                         const div = document.createElement('div');
@@ -91,10 +135,46 @@
                         container.appendChild(div);
                     })
                 }
+
+                        function showSuggestions() {
+                            const input = document.getElementsByClassName('search-bar')[0];
+                            const suggestionsList = document.getElementsByClassName('suggestions-list')[0];
+                            const filter = input.value;
+
+                            suggestionsList.innerHTML = '';
+
+                            if (filter) {
+                                const suggestions = trie.suggest(filter);
+                                suggestions.forEach(suggestion => {
+                                    suggestion = suggestion.slice(0, -4);
+                                    const li = document.createElement('li');
+                                    li.innerHTML = suggestion;
+                                    li.onclick = () => {
+                                        input.value = suggestion;
+                                        suggestionsList.style.display = 'none';
+                                    };
+                                    suggestionsList.appendChild(li);
+                                });
+
+                                if (suggestions.length > 0) {
+                                    suggestionsList.style.display = 'block';
+                                } else {
+                                    suggestionsList.style.display = 'none';
+                                }
+                            } else {
+                                suggestionsList.style.display = 'none';
+                            }
+                    }
             </script>
         </head>
         <body>
             <h1 id="page-title">Gallery</h1>
+            <div class="search-container">
+                <input type="text" class="search-bar" placeholder="Search..." oninput="showSuggestions()"/>
+            </div>
+            <div class="search-container">
+                <ul class="suggestions-list"></ul>
+            </div>
             <div id="gallery"></div>
             <script>getPhotos()</script>
         </body>
