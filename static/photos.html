@@ -136,41 +136,57 @@
                     })
                 }
 
-                        function showSuggestions() {
-                            const input = document.getElementsByClassName('search-bar')[0];
-                            const suggestionsList = document.getElementsByClassName('suggestions-list')[0];
-                            const filter = input.value;
+                function showSuggestions() {
+                    const input = document.getElementsByClassName('search-bar')[0];
+                    const suggestionsList = document.getElementsByClassName('suggestions-list')[0];
+                    const filter = input.value;
 
-                            suggestionsList.innerHTML = '';
+                    suggestionsList.innerHTML = '';
 
-                            if (filter) {
-                                const suggestions = trie.suggest(filter);
-                                suggestions.forEach(suggestion => {
-                                    suggestion = suggestion.slice(0, -4);
-                                    const li = document.createElement('li');
-                                    li.innerHTML = suggestion;
-                                    li.onclick = () => {
-                                        input.value = suggestion;
-                                        suggestionsList.style.display = 'none';
-                                    };
-                                    suggestionsList.appendChild(li);
-                                });
-
-                                if (suggestions.length > 0) {
-                                    suggestionsList.style.display = 'block';
-                                } else {
-                                    suggestionsList.style.display = 'none';
-                                }
-                            } else {
+                    if (filter) {
+                        const suggestions = trie.suggest(filter);
+                        suggestions.forEach(suggestion => {
+                            suggestion = suggestion.slice(0, -4);
+                            const li = document.createElement('li');
+                            li.innerHTML = suggestion;
+                            li.onclick = () => {
+                                input.value = suggestion;
                                 suggestionsList.style.display = 'none';
-                            }
+                                document.getElementById('search-bar').focus();
+                            };
+                            suggestionsList.appendChild(li);
+                        });
+
+                        if (suggestions.length > 0) {
+                            suggestionsList.style.display = 'block';
+                        } else {
+                            suggestionsList.style.display = 'none';
+                        }
+                    } else {
+                        suggestionsList.style.display = 'none';
                     }
+                }
+
+                document.addEventListener("DOMContentLoaded", () => {
+                    const searchBar = document.getElementById('search-bar');
+                    searchBar.value = '';
+                    searchBar.addEventListener('keypress', function(event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            const photo = searchBar.value + '.png';
+                            if (trie.contains(photo)) {
+                                const photo_path = "http://127.0.0.1:8080/images/" + photo;
+                                window.location.href = photo_path;
+                            }
+                        }
+                    })
+                });
             </script>
         </head>
         <body>
             <h1 id="page-title">Gallery</h1>
             <div class="search-container">
-                <input type="text" class="search-bar" placeholder="Search..." oninput="showSuggestions()"/>
+                <input id="search-bar" type="text" class="search-bar" placeholder="Search..." oninput="showSuggestions()"/>
             </div>
             <div class="search-container">
                 <ul class="suggestions-list"></ul>
