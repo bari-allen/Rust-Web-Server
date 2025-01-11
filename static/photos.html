@@ -117,15 +117,17 @@
                     container.innerHTML = '';
 
                     photo_paths.forEach(photo => {
+                        photo = photo.slice(0, -4);
                         trie.insert(photo);
-                        const photo_path = "http://127.0.0.1:8080/images/" + photo;
+                        const photo_path = "http://127.0.0.1:8080/compressed/" + photo + ".jpg";
+                        const full_photo_path = "http://127.0.0.1:8080/images/" + photo + ".png";
 
                         const div = document.createElement('div');
                         div.className = 'image-container';
 
                         const anchor = document.createElement('a');
                         anchor.target = '_self';
-                        anchor.href = photo_path;
+                        anchor.href = full_photo_path;
 
                         const img = document.createElement('img');
                         img.src = photo_path;
@@ -146,7 +148,6 @@
                     if (filter) {
                         const suggestions = trie.suggest(filter);
                         suggestions.forEach(suggestion => {
-                            suggestion = suggestion.slice(0, -4);
                             const li = document.createElement('li');
                             li.innerHTML = suggestion;
                             li.onclick = () => {
@@ -173,9 +174,9 @@
                     searchBar.addEventListener('keypress', function(event) {
                         if (event.key === 'Enter') {
                             event.preventDefault();
-                            const photo = searchBar.value + '.png';
+                            const photo = searchBar.value;
                             if (trie.contains(photo)) {
-                                const photo_path = "http://127.0.0.1:8080/images/" + photo;
+                                const photo_path = "http://127.0.0.1:8080/images/" + photo + ".png";
                                 window.location.href = photo_path;
                             }
                         }

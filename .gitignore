@@ -4,5 +4,6 @@ src/.vscode
 /images/*
 ./src/users.csv
 gitignore
+/compressed_images/*.jpg
 
 

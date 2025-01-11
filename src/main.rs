@@ -53,7 +53,7 @@ async fn login(data: web::Json<User>) -> impl Responder {
 async fn serve_image(file_path: web::Path<String>) -> Result<impl Responder, actix_web::Error> {
     let path = file_path.into_inner();
 
-    let regex = Regex::new(r"^[a-zA-Z0-9_\-\s]+\.(png|jpg)$").unwrap();
+    let regex = Regex::new(r"^[a-zA-Z0-9_\-\s]+\.png$").unwrap();
     if !regex.is_match(&path) {
         return Err(actix_web::error::ErrorBadRequest("Invalid File Name!"));
     }
@@ -74,14 +74,14 @@ async fn index() -> impl Responder {
 
 #[actix_web::get("/get_images")]
 async fn get_images() -> impl Responder {
-    let paths = fs::read_dir("./images").unwrap();
+    let paths = fs::read_dir("./compressed_images").unwrap();
     let mut file_names: Vec<String> = Vec::new();
 
     for path in paths {
         match path {
             Ok(path) => {
                 let file_name = path.file_name();
-                let file_name = file_name.to_string_lossy().into_owned();
+                let mut file_name: String = file_name.to_string_lossy().into_owned();
                 file_names.push(file_name);
             } Err(err) => {
                 eprintln!("Reason for Failure: {}", err.to_string());
@@ -89,7 +89,7 @@ async fn get_images() -> impl Responder {
             }
         }
     }
-
+    file_names.sort();
     return HttpResponse::Ok().json(file_names);
 }
 
@@ -109,6 +109,22 @@ async fn serve_script(file_path: web::Path<String>) -> Result<impl Responder, ac
     return Ok(file);
 }
 
+async fn serve_compressed_image(file_path: web::Path<String>) -> Result<impl Responder, actix_web::Error> {
+    let path = file_path.into_inner();
+
+    let regex = Regex::new(r"^[a-zA-Z0-9_\-\s]+\.jpg$").unwrap();
+    if !regex.is_match(&path) {
+        return Err(actix_web::error::ErrorBadRequest("Invalid File Name!"));
+    }
+
+    let file_path = Path::new("./compressed_images").join(path);
+
+    let named_file = actix_files::NamedFile::open(file_path)
+        .map_err(|_| actix_web::error::ErrorNotFound("File Not Found"))?;
+
+    return Ok(named_file);
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
@@ -119,6 +135,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_images)
             .service(actix_files::Files::new("/photos", "./static").index_file("photos.html"))
             .route("/script/{file_name}", actix_web::web::get().to(serve_script))
+            .route("/compressed/{file_name}", actix_web::web::get().to(serve_compressed_image))
     })
 	.bind(("127.0.0.1", 8080))?
 	.run()
