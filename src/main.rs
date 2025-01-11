@@ -93,6 +93,22 @@ async fn get_images() -> impl Responder {
     return HttpResponse::Ok().json(file_names);
 }
 
+async fn serve_script(file_path: web::Path<String>) -> Result<impl Responder, actix_web::Error> {
+    let path = file_path.into_inner();
+
+    let regex = Regex::new(r"^[a-zA-Z0-9]+\-script\.js$").unwrap();
+    if !regex.is_match(&path) {
+        return Err(actix_web::error::ErrorBadRequest("Invalid File Name!"));
+    }
+
+    let file_path = Path::new("./scripts").join(path);
+
+    let file = actix_files::NamedFile::open(file_path)
+    .map_err(|_| actix_web::error::ErrorNotFound("File not Found"))?;
+
+    return Ok(file);
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
@@ -102,6 +118,7 @@ async fn main() -> std::io::Result<()> {
             .route("/images/{file_name}", actix_web::web::get().to(serve_image))
             .service(get_images)
             .service(actix_files::Files::new("/photos", "./static").index_file("photos.html"))
+            .route("/script/{file_name}", actix_web::web::get().to(serve_script))
     })
 	.bind(("127.0.0.1", 8080))?
 	.run()
