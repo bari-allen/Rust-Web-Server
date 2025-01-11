@@ -1,8 +1,7 @@
 #[cfg(test)]
 mod file_reader_tests {
     use crate::file_reader::*;
-    use std::io::{Error, ErrorKind};
-    use std::path::Path;
+    use std::io::ErrorKind;
 
 
     #[test]

@@ -21,10 +21,12 @@ impl TrieNode {
 }
 
 impl Trie {
+    #[allow(dead_code)]
     pub fn new() -> Trie {
         return Trie{root: Rc::new(RefCell::new(TrieNode::new()))};
     }
     
+    #[allow(dead_code)]
     pub fn insert(&mut self, new_string: &str) {
         let char_array = new_string.chars();
         let mut node: Rc<RefCell<TrieNode>>= Rc::clone(&self.root);
@@ -44,6 +46,7 @@ impl Trie {
         node.borrow_mut().is_end_of_word = true;
     }
 
+    #[allow(dead_code)]
     pub fn contains(&self, to_find: &str) -> bool{
         let char_array = to_find.chars();
         let mut curr_node: Rc<RefCell<TrieNode>> = Rc::clone(&self.root);
@@ -65,6 +68,7 @@ impl Trie {
         return curr_node.borrow().is_end_of_word;
     }
 
+    #[allow(dead_code)]
     pub fn suggest(&self, prefix: &str) -> Vec<String> {
         let mut curr_node: Rc<RefCell<TrieNode>> = Rc::clone(&self.root);
         let mut list: Vec<String> = Vec::new();

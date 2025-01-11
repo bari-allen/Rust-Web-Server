@@ -31,6 +31,7 @@ pub fn valid_user_input(username: &String, password: &String) -> Result<bool, Er
 ///Creates a new file called user.csv
 ///in the current directory and initializes the
 ///first line with "Username, Password"
+#[allow(dead_code)]
 fn create_file() -> Result<bool, Error> {
     if file_exists() {
 	    return Err(Error::new(ErrorKind::AlreadyExists, "The file already exists"));
@@ -43,6 +44,7 @@ fn create_file() -> Result<bool, Error> {
     return Ok(true);
 }
 
+#[allow(dead_code)]
 pub fn contains_username(username: &String) -> Result<bool, Error> {
     let active_users = read_users();
     match active_users {
@@ -59,6 +61,7 @@ pub fn contains_username(username: &String) -> Result<bool, Error> {
 ///Writes a new user to the user.csv file, if it exists.
 ///This function hashes the `Password` its given to add
 ///an extra layer of safety
+#[allow(dead_code)]
 pub fn create_new_user(username: &String, password: &String) -> Result<(), Error> {
     if contains_username(&username)? {
         return Err(Error::new(ErrorKind::AlreadyExists,

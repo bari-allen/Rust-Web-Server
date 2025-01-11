@@ -81,7 +81,8 @@ async fn get_images() -> impl Responder {
         match path {
             Ok(path) => {
                 let file_name = path.file_name();
-                file_names.push(file_name.to_string_lossy().into_owned());
+                let file_name = file_name.to_string_lossy().into_owned();
+                file_names.push(file_name);
             } Err(err) => {
                 eprintln!("Reason for Failure: {}", err.to_string());
                 continue;
@@ -96,11 +97,11 @@ async fn get_images() -> impl Responder {
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
 		    App::new()
-	    .service(login)
-	    .service(index)
-        .route("/images/{file_name}", actix_web::web::get().to(serve_image))
-        .service(get_images)
-        .service(actix_files::Files::new("/photos", "./static").index_file("photos.html"))
+	        .service(login)
+	        .service(index)
+            .route("/images/{file_name}", actix_web::web::get().to(serve_image))
+            .service(get_images)
+            .service(actix_files::Files::new("/photos", "./static").index_file("photos.html"))
     })
 	.bind(("127.0.0.1", 8080))?
 	.run()
