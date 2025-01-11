@@ -81,7 +81,7 @@ async fn get_images() -> impl Responder {
         match path {
             Ok(path) => {
                 let file_name = path.file_name();
-                let mut file_name: String = file_name.to_string_lossy().into_owned();
+                let file_name: String = file_name.to_string_lossy().into_owned();
                 file_names.push(file_name);
             } Err(err) => {
                 eprintln!("Reason for Failure: {}", err.to_string());
