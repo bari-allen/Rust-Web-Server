@@ -7,39 +7,37 @@
             <title>My Photographs</title>
             <style>
                 .image-container {
-                    display: inline-block;
-                    border: 1px solid rgb(136, 128, 128);
-                    width: auto;
-                    height: 350px;
-                    margin-top: 5px;
-                    margin-left: 2px;
-                    margin-right: 2px;
-                    margin-bottom: 5px;
+                    position: relative;
+                    overflow: hidden;
+                    margin: 7px;
                 }
-                .image-container:hover {
-                    border: 1px solid rgb(0, 0, 0);
-                    height: 354px;
-                    margin-top: 3px;
-                    margin-left: 0px;
-                    margin-right: 0px;
-                    margin-bottom: 3px;
-                    width: auto;
+                .hidden{
+                    opacity: 0;
+                    filter: blur(5px);
+                    transform: translateX(50%);
+                    transition: all 0.5s;
+                }
+                .show{
+                    opacity: 1;
+                    filter: blur(0);
+                    transform: translateX(0);
                 }
                 .image-container img{
-                    height: 100%;
-                    width: auto;
+                    width: 100%;
+                    height: auto;
                 }
                 #gallery{
-                    display: flex;
-                    justify-content: space-evenly;
                     flex-wrap: wrap;
-                    flex-direction: row;
-                    margin: 100px;
-                    position: relative;
+                    justify-content:center;
+                    width: 100%;
+                    height: auto;
+                    margin: 0 auto;
+                    margin-top: 100px;
                 }
                 html, body{
                     height: auto;
                     overflow-y: auto;
+                    overflow-x:hidden;
                     background: #d2d8d9
                 }
                 #page-title{
@@ -123,7 +121,7 @@
                         const full_photo_path = "http://127.0.0.1:8080/images/" + photo + ".png";
 
                         const div = document.createElement('div');
-                        div.className = 'image-container';
+                        div.className = 'image-container hidden';
 
                         const anchor = document.createElement('a');
                         anchor.target = '_self';
@@ -141,6 +139,7 @@
                 function showSuggestions() {
                     const input = document.getElementsByClassName('search-bar')[0];
                     const suggestionsList = document.getElementsByClassName('suggestions-list')[0];
+                    const gallery = document.getElementById('gallery');
                     const filter = input.value;
 
                     suggestionsList.innerHTML = '';
@@ -153,6 +152,7 @@
                             li.onclick = () => {
                                 input.value = suggestion;
                                 suggestionsList.style.display = 'none';
+                                gallery.style.marginTop = '100px';
                                 document.getElementById('search-bar').focus();
                             };
                             suggestionsList.appendChild(li);
@@ -160,11 +160,15 @@
 
                         if (suggestions.length > 0) {
                             suggestionsList.style.display = 'block';
+                            gallery.style.marginTop = '50px';
+
                         } else {
                             suggestionsList.style.display = 'none';
+                            gallery.style.marginTop = '100px';
                         }
                     } else {
                         suggestionsList.style.display = 'none';
+                        gallery.style.marginTop = '100px';
                     }
                 }
 
@@ -182,6 +186,69 @@
                         }
                     })
                 });
+
+                function adjustImageInRows() {
+                    const gallery = document.querySelector('#gallery');
+                    const containers = Array.from(gallery.querySelectorAll('.image-container'));
+                    const containerWidth = gallery.clientWidth;
+
+                    let currentRow = [];
+                    let currentRowAspectRatioSum = 0;
+
+                    containers.forEach((container, index) => {
+                        const img = container.querySelector('img');
+                        const aspectRatio = img.naturalWidth / img.naturalHeight;
+
+                        currentRow.push({container, aspectRatio});
+                        currentRowAspectRatioSum += aspectRatio;
+
+                        const isLastImage = index === containers.length - 1;
+                        if (isLastImage || currentRowAspectRatioSum > containerWidth / 350) {
+                            let rowHeight = containerWidth / currentRowAspectRatioSum;
+
+                            if (rowHeight < 350) {
+                                rowHeight = 350;
+                            }
+
+                            const totalRowWidth = currentRow.reduce((sum, {aspectRatio}) =>
+                                sum + rowHeight * aspectRatio, 0
+                            )
+
+                            const rowMargin = (container.clientWidth - totalRowWidth) / 2;
+
+                            currentRow.forEach(({container, aspectRatio}) => {
+                                const imageWidth = rowHeight * aspectRatio;
+                                container.style.flexBasis = `${imageWidth}px`;
+                                container.style.height = `${rowHeight}px`;
+                            });
+
+                            const rowDiv = document.createElement('div');
+                            rowDiv.classList.add('hidden');
+                            rowDiv.style.display = 'flex';
+                            rowDiv.style.justifyContent = 'center';
+                            rowDiv.style.margin = `0 auto`;
+                            rowDiv.style.width = `${totalRowWidth}px`;
+
+                            currentRow.forEach(({container}) => {
+                                rowDiv.appendChild(container);
+                            });
+
+                            gallery.appendChild(rowDiv);
+
+                            currentRow = [];
+                            currentRowAspectRatioSum = 0;
+                        }
+                    });
+
+                    gallery.style.display = 'flex';
+
+                    const rows = Array.from(gallery.querySelectorAll('.hidden'));
+                    rows.forEach((element, index) => {
+                        setTimeout(() => {
+                            element.classList.add('show');
+                        }, 50 * index);
+                    });
+                }
             </script>
         </head>
         <body>
@@ -194,5 +261,10 @@
             </div>
             <div id="gallery"></div>
             <script>getPhotos()</script>
+            <script defer>
+                setTimeout(() => {
+                    adjustImageInRows()
+                }, 100);
+            </script>
         </body>
     </html>
