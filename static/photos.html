@@ -94,6 +94,7 @@
             <script src="http://127.0.0.1:8080/script/trie-script.js"></script>
             <script>
                 let trie = new Trie();
+                let keyIndex = NaN;
                 async function getPhotos() {
                     const container = document.getElementById('image-container');
 
@@ -158,6 +159,7 @@
                             li.onclick = () => {
                                 input.value = suggestion;
                                 document.getElementById('search-bar').focus();
+                                keyIndex = NaN;
                             };
                             suggestionsList.appendChild(li);
                         });
@@ -167,9 +169,11 @@
 
                         } else {
                             suggestionsList.style.display = 'none';
+                            keyIndex = NaN;
                         }
                     } else {
                         suggestionsList.style.display = 'none';
+                        keyIndex = NaN;
                     }
                 }
 
@@ -197,6 +201,34 @@
                                 searchBar.value = suggestion;
                                 suggestionsList.style.display = 'none';
 
+                            }
+                        }
+                        const suggestionArray = Array.from(document.querySelectorAll('.suggestion'));
+                        if (!suggestionArray.length) return;
+
+                        if (event.key === 'ArrowUp') {
+                            event.preventDefault();
+                            if (isNaN(keyIndex)) {
+                                keyIndex = suggestionArray.length - 1;
+                            } else {
+                                keyIndex = (keyIndex - 1 + suggestionArray.length) % suggestionArray.length; // Wrap around
+                            }
+                            const suggestion = suggestionArray[keyIndex];
+                            if (suggestion) {
+                                searchBar.value = suggestion.textContent; // Use textContent instead of innerHTML
+                            }
+                        }
+
+                        if (event.key === 'ArrowDown') {
+                            event.preventDefault();
+                            if (isNaN(keyIndex)) {
+                                keyIndex = 0;
+                            } else {
+                                keyIndex = (keyIndex + 1) % suggestionArray.length; // Wrap around
+                            }
+                            const suggestion = suggestionArray[keyIndex];
+                            if (suggestion) {
+                                searchBar.value = suggestion.textContent; // Use textContent instead of innerHTML
                             }
                         }
                     });
@@ -288,6 +320,7 @@
                 searchBar.addEventListener("blur", () => {
                     setTimeout(() => {
                         suggestionsList.style.display = 'none';
+                        keyIndex = NaN;
                     }, 100);
                 });
                 searchBar.addEventListener("focus", () => {
