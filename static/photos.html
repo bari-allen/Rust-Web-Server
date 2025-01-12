@@ -64,6 +64,7 @@
                     border-color:hsl(197, 3%, 49%);
                 }
                 .suggestions-list{
+                    position: absolute;
                     max-height: 200px;
                     overflow-y: auto;
                     border-radius: 5px;
@@ -71,11 +72,12 @@
                     border-top-right-radius: 0px;
                     margin: 0;
                     padding: 0;
+                    box-shadow: 2px 2px 5px black;
                     background-color: #fff;
                     list-style: none;
                     display: none; /* Initially hidden */
                     z-index: 1000;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    box-shadow: 0 4px 6px hsla(0, 0%, 0%, 0.8);
                     width: 303px;
                 }
                 .suggestions-list li{
@@ -83,6 +85,9 @@
                     padding: 10px;
                     text-align: center;
                     font-size: 16px;
+                }
+                .suggestions-list li:hover{
+                    background-color: hsl(0, 0%, 81%);
                 }
 
             </style>
@@ -151,8 +156,6 @@
                             li.innerHTML = suggestion;
                             li.onclick = () => {
                                 input.value = suggestion;
-                                suggestionsList.style.display = 'none';
-                                gallery.style.marginTop = '100px';
                                 document.getElementById('search-bar').focus();
                             };
                             suggestionsList.appendChild(li);
@@ -160,15 +163,12 @@
 
                         if (suggestions.length > 0) {
                             suggestionsList.style.display = 'block';
-                            gallery.style.marginTop = '50px';
 
                         } else {
                             suggestionsList.style.display = 'none';
-                            gallery.style.marginTop = '100px';
                         }
                     } else {
                         suggestionsList.style.display = 'none';
-                        gallery.style.marginTop = '100px';
                     }
                 }
 
@@ -257,7 +257,7 @@
                 <input id="search-bar" type="text" class="search-bar" placeholder="Search..." oninput="showSuggestions()"/>
             </div>
             <div class="search-container">
-                <ul class="suggestions-list"></ul>
+                <ul id ="suggestions-list" class="suggestions-list"></ul>
             </div>
             <div id="gallery"></div>
             <script>getPhotos()</script>
@@ -265,6 +265,19 @@
                 setTimeout(() => {
                     adjustImageInRows()
                 }, 100);
+            </script>
+            <script>
+                const searchBar = document.getElementById('search-bar');
+                const suggestionsList = document.getElementById('suggestions-list');
+
+                searchBar.addEventListener("blur", () => {
+                    setTimeout(() => {
+                        suggestionsList.style.display = 'none';
+                    }, 100);
+                });
+                searchBar.addEventListener("focus", () => {
+                    showSuggestions();
+                });
             </script>
         </body>
     </html>
