@@ -154,6 +154,7 @@
                         suggestions.forEach(suggestion => {
                             const li = document.createElement('li');
                             li.innerHTML = suggestion;
+                            li.className = 'suggestion';
                             li.onclick = () => {
                                 input.value = suggestion;
                                 document.getElementById('search-bar').focus();
@@ -174,6 +175,8 @@
 
                 document.addEventListener("DOMContentLoaded", () => {
                     const searchBar = document.getElementById('search-bar');
+                    const suggestions = document.getElementsByClassName('suggestion');
+                    const suggestionList = document.getElementById('suggestions-list');
                     searchBar.value = '';
                     searchBar.addEventListener('keypress', function(event) {
                         if (event.key === 'Enter') {
@@ -184,7 +187,19 @@
                                 window.location.href = photo_path;
                             }
                         }
-                    })
+                    });
+                    searchBar.addEventListener('keydown', function(event) {
+                        if (event.key === 'Tab') {
+                            event.preventDefault();
+                            const firstSuggestion = suggestions[0];
+                            if (firstSuggestion) {
+                                const suggestion = firstSuggestion.innerHTML;
+                                searchBar.value = suggestion;
+                                suggestionsList.style.display = 'none';
+
+                            }
+                        }
+                    });
                 });
 
                 function adjustImageInRows() {
