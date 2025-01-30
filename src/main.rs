@@ -1,4 +1,5 @@
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use little_exif::u8conversion::U8conversion;
 use serde::{Serialize, Deserialize};
 use actix_files;
 use std::path::Path;
@@ -8,6 +9,8 @@ mod trie;
 use file_reader::*;
 use regex::Regex;
 use std::fs;
+use little_exif::metadata::Metadata;
+use little_exif::exif_tag::ExifTag;
 
 ///The struct for the data the user inputs
 #[derive(Serialize, Deserialize)]
@@ -45,6 +48,29 @@ async fn login(data: web::Json<User>) -> impl Responder {
             return HttpResponse::Ok().json(response);
         }
     }
+}
+
+async fn get_exif_data(file_path: web::Path<String>) -> Result<impl Responder, actix_web::Error> {
+    let file_path = file_path.into_inner();
+
+    let regex = Regex::new(r"^[a-zA-Z0-9_\-\s]+\.png$").unwrap();
+    if !regex.is_match(&file_path) {
+        return Err(actix_web::error::ErrorBadRequest("Invalid File Name!"));
+    }
+
+    let image_path = Path::new("./images").join(file_path);
+    let metadata = Metadata::new_from_path(&image_path)?;
+    let exif_description_tag = ExifTag::ImageDescription(String::new());
+
+    if let Some(image_description) = metadata.get_tag(&exif_description_tag).next() {
+        let endian = metadata.get_endian();
+        let image_description_string = String::from_u8_vec(&image_description.value_as_u8_vec(&metadata.get_endian()), &endian);
+
+        return Ok(HttpResponse::Ok().json(image_description_string));
+    } else {
+        return Ok(HttpResponse::Ok().json(""));
+    }
+
 }
 
 /// Takes the file_path which the user inputted in the webpage, matches it
@@ -131,6 +157,7 @@ async fn main() -> std::io::Result<()> {
 		    App::new()
 	        .service(login)
 	        .service(index)
+            .route("/images/{file_name}", actix_web::web::get().to(get_exif_data))
             .route("/images/{file_name}", actix_web::web::get().to(serve_image))
             .service(get_images)
             .service(actix_files::Files::new("/photos", "./static").index_file("photos.html"))
