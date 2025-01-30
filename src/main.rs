@@ -53,12 +53,12 @@ async fn login(data: web::Json<User>) -> impl Responder {
 async fn get_exif_data(file_path: web::Path<String>) -> Result<impl Responder, actix_web::Error> {
     let file_path = file_path.into_inner();
 
-    let regex = Regex::new(r"^[a-zA-Z0-9_\-\s]+\.png$").unwrap();
+    let regex = Regex::new(r"^[a-zA-Z0-9_\-\s]+\.jpg$").unwrap();
     if !regex.is_match(&file_path) {
         return Err(actix_web::error::ErrorBadRequest("Invalid File Name!"));
     }
 
-    let image_path = Path::new("./images").join(file_path);
+    let image_path = Path::new("./compressed_images").join(file_path);
     let metadata = Metadata::new_from_path(&image_path)?;
     let exif_description_tag = ExifTag::ImageDescription(String::new());
 
@@ -157,7 +157,7 @@ async fn main() -> std::io::Result<()> {
 		    App::new()
 	        .service(login)
 	        .service(index)
-            .route("/images/{file_name}", actix_web::web::get().to(get_exif_data))
+            .route("/images/metadata/{file_name}", actix_web::web::get().to(get_exif_data))
             .route("/images/{file_name}", actix_web::web::get().to(serve_image))
             .service(get_images)
             .service(actix_files::Files::new("/photos", "./static").index_file("photos.html"))
