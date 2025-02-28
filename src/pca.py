@@ -1,8 +1,6 @@
 from scipy.linalg import eigh
 import numpy as np
-import matplotlib.pyplot as plt
 import cv2 as cv
-import sys
 import os
 
 def load(filename):
